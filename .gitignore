@@ -1,0 +1,13 @@
+#temp files
+*.jou
+*.log
+*.str
+*.pb
+*.wdb
+*.wcfg
+.Xil/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
