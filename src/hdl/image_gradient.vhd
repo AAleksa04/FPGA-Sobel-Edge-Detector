@@ -20,13 +20,13 @@ end entity image_gradient;
 
 architecture Behavioral of image_gradient is
 
-    -- KONSTANTE
+    -- CONSTANTS
     constant IMG_WIDTH  : integer := 256;
     constant IMG_HEIGHT : integer := 256;
     constant RAM_DEPTH  : integer := 65536;
     constant ADDR_WIDTH : integer := 16; 
     
-    -- SIGNALI ZA IM_RAM
+    -- SIGNALS FOR IM_RAM
     signal ram_addra : std_logic_vector(ADDR_WIDTH-1 downto 0); 
     signal ram_addrb : std_logic_vector(ADDR_WIDTH-1 downto 0); 
     signal ram_dina  : std_logic_vector(7 downto 0);
@@ -34,13 +34,13 @@ architecture Behavioral of image_gradient is
     signal ram_wea   : std_logic;
     signal ram_enb   : std_logic;
     
-    -- SIGNALI ZA SQRT
+    -- SIGNALS FOR SQRT
     signal sqrt_din       : std_logic_vector(15 downto 0);
     signal sqrt_valid_in  : std_logic;
     signal sqrt_dout      : std_logic_vector(15 downto 0);
     signal sqrt_valid_out : std_logic;
 
-    -- BAFERI ZA PROZOR
+    -- BUFFERS ZA WINDOW
     type line_buffer_type is array (0 to 255) of unsigned(7 downto 0);
     signal line_buff_0 : line_buffer_type := (others => (others => '0')); 
     signal line_buff_1 : line_buffer_type := (others => (others => '0')); 
@@ -49,26 +49,26 @@ architecture Behavioral of image_gradient is
     signal p10, p11, p12 : signed(10 downto 0) := (others => '0');
     signal p20, p21, p22 : signed(10 downto 0) := (others => '0');
 
-    -- SOBEL MATEMATIKA
+    -- SOBEL MATH
     signal Gx, Gy : signed(10 downto 0);
 
-    -- BROJACI
+    -- COUNTERS
     signal read_addr_cnt : integer range 0 to 65536 := 0; 
     signal out_pixel_cnt : integer range 0 to 65536 := 0; 
     signal read_col      : integer range 0 to 255 := 0;   
 
-    -- SIGNALI ZA DETEKCIJU IVICA
+    -- SIGNALS FOR EDGE DETECTION
     signal v_out_vec     : unsigned(15 downto 0);
     signal out_row       : unsigned(7 downto 0);
     signal out_col       : unsigned(7 downto 0);
     signal is_edge       : std_logic;
 
-    -- KONTROLNI SIGNALI
+    -- CONTROL SIGNALS
     signal update_window_en : std_logic;
     signal calc_sobel_en    : std_logic;
     signal trig_sqrt_en     : std_logic;
 
-    -- STANJA
+    -- STATES
     type state_type is (IDLE, READ_RAM, WAIT_RAM, UPDATE_WINDOW, CHECK_OUTPUT, 
                         CALC_SOBEL, TRIG_SQRT, WAIT_SQRT, WRITE_RESULT, 
                         WRITE_EDGE, FLUSH_OUTPUTS, FINISHED);
@@ -166,13 +166,13 @@ begin
                 out_pixel_cnt <= 0;
                 read_col <= 0;
             else
-                -- Inkrementacija citanja
+                -- INCREMENTATION READ
                 if state = UPDATE_WINDOW then
                     read_addr_cnt <= read_addr_cnt + 1;
                     if read_col = 255 then read_col <= 0; else read_col <= read_col + 1; end if;
                 end if;
 
-                -- Inkrementacija upisa
+                -- INCREMENTATION WRITING
                 if (state = WRITE_RESULT) or (state = WRITE_EDGE) or (state = FLUSH_OUTPUTS and out_pixel_cnt < 65536) then
                     out_pixel_cnt <= out_pixel_cnt + 1;
                 end if;
@@ -238,12 +238,12 @@ begin
                 debug_valid <= '0';
                 debug_data <= (others => '0');
             else
-                -- Default vrednosti za impulse
+                -- Default values
                 ram_wea <= '0';
                 ram_enb <= '0';
                 debug_valid <= '0';
 
-                -- Za citanje
+                -- FOR READING
                 if state = READ_RAM and read_addr_cnt < 65536 then
                     ram_addrb <= std_logic_vector(to_unsigned(read_addr_cnt, ADDR_WIDTH));
                     ram_enb <= '1';
@@ -252,7 +252,7 @@ begin
                     ram_enb <= '1';
                 end if;
 
-                -- Upis i slanje sobela
+                -- WRITE AND SOBEL SEND
                 if state = WRITE_RESULT then
                     v_round := unsigned("0" & sqrt_dout(15 downto 8)) + ("00000000" & sqrt_dout(7));
                     if v_round > 255 then
@@ -268,7 +268,7 @@ begin
                     debug_valid <= '1';
                 end if;
 
-                -- Upis i slanje ivicnih
+                -- WRITE AND EDGE ADDING
                 if state = WRITE_EDGE or (state = FLUSH_OUTPUTS and out_pixel_cnt < 65536) then
                     ram_dina <= (others => '0');
                     ram_addra <= std_logic_vector(to_unsigned(out_pixel_cnt, ADDR_WIDTH));
@@ -278,7 +278,7 @@ begin
                     debug_valid <= '1'; 
                 end if;
 
-                -- Kraj
+                -- END
                 if state = FINISHED then
                     done <= '1';
                 else

@@ -19,16 +19,16 @@ entity sqrt is
 end entity;
 
 ----------------------------------------------------------------
---                sekvencijalni
+--                   sequential
 ----------------------------------------------------------------
 architecture Behavioral_sqrt_seq of sqrt is
     constant TOTAL_BITS : natural := G_IN_BW + (2 * G_OUT_FRAC);
     type state_type is (IDLE, COMPUTE, DONE);
     
-    -- Registri stanja
+    -- STATE REGISTERS
     signal state, nxt_state : state_type;
     
-    -- Registri podataka
+    -- DATA REGISTERS
     signal P, nxt_P         : unsigned(G_OUT_BW-1 downto 0);
     signal R, nxt_R         : unsigned(G_OUT_BW-1 downto 0); 
     signal X_reg, nxt_X     : unsigned(TOTAL_BITS-1 downto 0);
@@ -45,11 +45,11 @@ begin
                 R         <= (others => '0');
                 X_reg     <= (others => '0');
                 count     <= 0;
-                -- Resetujemo i izlaze
                 d_out     <= (others => '0');
                 valid_out <= '0';
             else
-                -- Standardni prelaz stanja
+
+                -- NEXT STATE
                 state <= nxt_state;
                 P     <= nxt_P;
                 R     <= nxt_R;
@@ -72,7 +72,7 @@ begin
         variable v_test : unsigned(G_OUT_BW-1 downto 0);
         variable v_bits : unsigned(1 downto 0);
     begin
-        -- Default vrednosti
+
         nxt_state <= state;
         nxt_P     <= P;
         nxt_R     <= R;
@@ -122,7 +122,7 @@ end architecture;
 
 
 ----------------------------------------------------------------
---                     pajplajn
+--                     PIPELINE
 ----------------------------------------------------------------
 architecture Behavioral_sqrt_pipelined of sqrt is
 
@@ -134,7 +134,7 @@ constant TOTAL_BITS : natural := G_IN_BW + (2 * G_OUT_FRAC);
     type x_array_t is array (0 to NUM_STAGES) of unsigned(TOTAL_BITS-1 downto 0);
     type v_array_t is array (0 to NUM_STAGES) of std_logic;
 
-    -- SIGNALI
+    -- SIGNALS
     signal p_reg : p_array_t;
     signal r_reg : r_array_t;
     signal x_reg : x_array_t;
@@ -167,7 +167,6 @@ begin
             v_test := p_reg(i)(G_OUT_BW-3 downto 0) & "01";
 
             if v_R >= v_test then
-                -- Ako moze da se oduzme:
                 r_next(i) <= v_R - v_test;
                 p_next(i) <= p_reg(i)(G_OUT_BW-2 downto 0) & '1';
             else

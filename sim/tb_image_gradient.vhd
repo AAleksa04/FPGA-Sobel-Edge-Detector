@@ -20,7 +20,7 @@ architecture Behavioral of tb_image_gradient is
     );
     end component;
     
-    -- SIGNALI
+    -- SIGNALS
     signal clk         : std_logic := '0';
     signal reset       : std_logic := '0';
     signal start       : std_logic := '0';
@@ -28,7 +28,7 @@ architecture Behavioral of tb_image_gradient is
     signal debug_data  : std_logic_vector(7 downto 0);
     signal debug_valid : std_logic;
 
-    -- Takt (100 MHz -> 10 ns)
+    -- Tact (100 MHz -> 10 ns)
     constant clk_period : time := 10 ns;
     
 begin
