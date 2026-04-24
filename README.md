@@ -39,17 +39,23 @@ Pipelined architecture is designed as one big conveyer that carry all data from 
 
 ### Comparative Analysis
 
+Table below show us difference between seq and pipeline architecture. I chose for primary architecture of sqrt module to be pipelined as it gives constantly one output pixel every clock cycle wich mantains a continuous data flow from memory to the output.
+
+![Table](https://github.com/AAleksa04/FPGA-Sobel-Edge-Detector/blob/main/docs/tabel.png)
 
 ---
 
 ## 3. Sobel Operator Implementation
-The Sobel filter computes the image gradient using two 3x3 kernels.
 
-![Sobel Kernel Diagram](docs/sobel_kernel.png) ### Line Buffer & Sliding Window
-To avoid re-reading pixels from memory, a **Line Buffer (FIFO)** architecture was implemented:
-1. **FIFO Buffers:** Store two full rows of the image.
-2. **Sliding Window:** A 3x3 register matrix extracts the neighborhood of the current pixel.
-3. **Parallel Computation:** $G_x$ and $G_y$ are calculated simultaneously using dedicated adders and shifters (avoiding multipliers where possible).
+The Sobel operator is a 2D spatial filter used for edge detection. It approximates the image gradient (rate of change in pixel intensity) in two directions horizontal and vertical and combines them into a single gradient magnitude that highlights edges.
+
+Let's start whit image that is procesed.
+
+My sobel is made only for images 256x256 8 bit greyscale images. Image that sobel is operating on is stored in initialized BRAM (`im_ram.vhd`), initialized from `cameraman.dat`. 
+
+`im_ram.vhd` is configured as **Simple Dual Port**, one port for reading pixels, one for writing the results back.
+
+
 
 ---
 
