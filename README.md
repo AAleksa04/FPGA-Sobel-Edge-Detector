@@ -21,25 +21,24 @@ I won't get in details about algorithm since it is very good explaind on wikiped
 
 The sqrt module is resposible for implementing previos explaind algorithm and to send result to next instance. General module block diagram is:
 
+![Block diagram of sqrt module](https://github.com/AAleksa04/FPGA-Sobel-Edge-Detector/blob/main/docs/block_sqrt.png)
+ 
 This modul has two distinct architectures to show difrence in performance vs. area trade-offs:
 
 ### Sequential Architecture
 
-The sqrt_seq module is implemented as a synchronous sequential circuit. It uses a centralized Finite State Machine (FSM).
+The sqrt_seq architecture is implemented as a synchronous sequential circuit. It uses a **Finite State Machine** (FSM). It's Moore diagram look like:
+
+![State machine sqrt_seq](https://github.com/AAleksa04/FPGA-Sobel-Edge-Detector/blob/main/docs/state_machine_sqrt.png)
 
 
 ### Pipelined Architecture
-* **Logic:** Breaks the algorithm into stages separated by registers.
-* **Pros:** High throughput (one pixel per clock cycle after initial latency).
-* **Cons:** Higher resource consumption due to pipeline registers.
+Pipelined architecture is designed as one big conveyer that carry all data from registars from previos architecture one by one on clk signal. It's block digram looks like this:
+
+![Blokc diagram sqrt_pipelined](https://github.com/AAleksa04/FPGA-Sobel-Edge-Detector/blob/main/docs/block_schematic_sqrt_pipelined.png)
 
 ### Comparative Analysis
-| Feature | Sequential Architecture | Pipelined Architecture |
-| :--- | :---: | :---: |
-| **Throughput** | 1 result every N cycles | 1 result every cycle |
-| **Latency** | N clock cycles | N clock cycles |
-| **Area (LUT/FF)** | Low | High |
-| **Max Frequency** | Moderate | High (Short critical paths) |
+
 
 ---
 
