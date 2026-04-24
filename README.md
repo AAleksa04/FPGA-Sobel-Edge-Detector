@@ -5,25 +5,28 @@ This project implements a high-performance hardware for the **Sobel Edge Detecti
 
 The project was developed in VHDL and targeted for the **Xilinx Zynq-7000 (Arty Z7)** platform.
 
+To understand how project this project works, in the following sections, I will break down the hardware and it's logic into its core functional blocks: from how it's efficiently store and access pixels, through the mathematics behind the gradient calculation, to the final synchronization with external devices.
+
 ---
 
 ## 1. Digit-by-Digit Square Root Algorithm
-The core of the magnitude calculation $\sqrt{G_x^2 + G_y^2}$ is a custom Square Root module based on the **digit-by-digit** (non-restoring) algorithm. 
 
-### Algorithm Logic
-The algorithm finds the root $Q$ of a radicand $X$ iteratively. For each step, it determines the next bit $b$ such that $(P + b)^2 \leq X$, where $P$ is the root found in previous iterations. In hardware, this is implemented using:
-* **Bit-shifting** instead of multiplication to reduce resource consumption.
-* **Subtractor units** to evaluate the remainder at each stage.
+To understand the hardware implementation it is best to first start with sqrt module and math behind it. Since there isn't sqrt function in standard ieee library that i used in this project, i made my own sqrt module using **Digit-by-digit calculation techinque** for binary system, wikipedia page about alogorithm [link](https://en.wikipedia.org/wiki/Square_root_algorithms#Digit-by-digit_calculation). 
+
+I won't get in details about algorithm since it is very good explaind on wikipedia.
 
 ---
 
-## 2. Hardware Architectures: Sequential vs. Pipelined
-Two distinct architectures were implemented to evaluate performance vs. area trade-offs:
+## 2. Sqrt Module
+
+The sqrt module is resposible for implementing previos explaind algorithm and to send result to next instance. General module block diagram is:
+
+This modul has two distinct architectures to show difrence in performance vs. area trade-offs:
 
 ### Sequential Architecture
-* **Logic:** Uses a single calculation unit controlled by a Finite State Machine (FSM). 
-* **Pros:** Minimal resource usage (low Slice/LUT count).
-* **Cons:** High latency; requires multiple clock cycles per pixel.
+
+The sqrt_seq module is implemented as a synchronous sequential circuit. It uses a centralized Finite State Machine (FSM).
+
 
 ### Pipelined Architecture
 * **Logic:** Breaks the algorithm into stages separated by registers.
